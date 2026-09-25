@@ -41,7 +41,7 @@ static void ensure_declaration_matches_expected_type(const CDeclaration *decl, V
         free_c_declaration(decl);
 
         VALUE error_class = rb_const_get(mRubydexModule, rb_intern("Error"));
-        rb_raise(error_class, "Expected %s to resolve to %s, got %s", name, rb_class2name(expected_type),
+        rb_raise(error_class, "Expected %s to be a %s, got %s", name, rb_class2name(expected_type),
                  rb_class2name(decl_class));
     }
 }
