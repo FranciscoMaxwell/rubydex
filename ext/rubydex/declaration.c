@@ -176,25 +176,17 @@ static VALUE rdxr_declaration_definitions(VALUE self) {
 
 /*
  * call-seq:
- *   member(name, expected_type: Rubydex::Declaration) -> Rubydex::Declaration?
+ *   member(name, expected_type = Rubydex::Declaration) -> Rubydex::Declaration?
  *
  * Returns a declaration handle for the named member, or nil if no member exists.
  */
 static VALUE rdxr_declaration_member(int argc, VALUE *argv, VALUE self) {
-    VALUE name, opts;
-    rb_scan_args(argc, argv, "1:", &name, &opts);
+    VALUE name, expected_type;
+    rb_scan_args(argc, argv, "11", &name, &expected_type);
     Check_Type(name, T_STRING);
 
-    VALUE expected_type = Qnil;
-    if (!NIL_P(opts)) {
-        ID kwarg_id = rb_intern("expected_type");
-        VALUE kwarg_val;
-        rb_get_kwargs(opts, &kwarg_id, 0, 1, &kwarg_val);
-
-        if (kwarg_val != Qundef) {
-            expected_type = kwarg_val;
-            validate_expected_type(expected_type);
-        }
+    if (!NIL_P(expected_type)) {
+        validate_expected_type(expected_type);
     }
 
     HandleData *data;
@@ -207,30 +199,28 @@ static VALUE rdxr_declaration_member(int argc, VALUE *argv, VALUE self) {
 
 /*
  * call-seq:
- *   find_member(name, only_inherited: false, expected_type: Rubydex::Declaration) -> Rubydex::Declaration?
+ *   find_member(name, expected_type = Rubydex::Declaration, only_inherited: false) -> Rubydex::Declaration?
  *
  * Searches for a member in the declaration's ancestor chain.
  */
 static VALUE rdxr_declaration_find_member(int argc, VALUE *argv, VALUE self) {
-    VALUE member, opts;
-    rb_scan_args(argc, argv, "1:", &member, &opts);
+    VALUE member, expected_type, opts;
+    rb_scan_args(argc, argv, "11:", &member, &expected_type, &opts);
     Check_Type(member, T_STRING);
 
     bool only_inherited = false;
-    VALUE expected_type = Qnil;
     if (!NIL_P(opts)) {
-        ID kwarg_ids[] = {rb_intern("only_inherited"), rb_intern("expected_type")};
-        VALUE kwarg_vals[2];
-        rb_get_kwargs(opts, kwarg_ids, 0, 2, kwarg_vals);
+        ID kwarg_id = rb_intern("only_inherited");
+        VALUE kwarg_val;
+        rb_get_kwargs(opts, &kwarg_id, 0, 1, &kwarg_val);
 
-        if (kwarg_vals[0] != Qundef) {
-            only_inherited = RTEST(kwarg_vals[0]);
+        if (kwarg_val != Qundef) {
+            only_inherited = RTEST(kwarg_val);
         }
+    }
 
-        if (kwarg_vals[1] != Qundef) {
-            expected_type = kwarg_vals[1];
-            validate_expected_type(expected_type);
-        }
+    if (!NIL_P(expected_type)) {
+        validate_expected_type(expected_type);
     }
 
     HandleData *data;

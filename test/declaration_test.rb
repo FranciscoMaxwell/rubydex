@@ -711,12 +711,12 @@ class DeclarationTest < Minitest::Test
       graph.resolve
 
       parent = graph["Parent"]
-      method = parent.member("foo()", expected_type: Rubydex::Method)
+      method = parent.member("foo()", Rubydex::Method)
       assert_instance_of(Rubydex::Method, method)
       assert_equal("Parent#foo()", method.name)
 
       assert_raises(Rubydex::Error) do
-        parent.member("foo()", expected_type: Rubydex::InstanceVariable)
+        parent.member("foo()", Rubydex::InstanceVariable)
       end
     end
   end
@@ -736,15 +736,19 @@ class DeclarationTest < Minitest::Test
       graph.resolve
 
       child = graph["Child"]
-      method = child.find_member("foo()", expected_type: Rubydex::Method)
+      method = child.find_member(
+        "foo()",
+        Rubydex::Method,
+        only_inherited: true,
+      )
       assert_instance_of(Rubydex::Method, method)
       assert_equal("Parent#foo()", method.name)
 
       assert_raises(Rubydex::Error) do
-        child.find_member("foo()", expected_type: Rubydex::InstanceVariable)
+        child.find_member("foo()", Rubydex::InstanceVariable)
       end
 
-      assert_nil(child.find_member("missing", expected_type: Rubydex::Method))
+      assert_nil(child.find_member("missing", Rubydex::Method))
     end
   end
 
